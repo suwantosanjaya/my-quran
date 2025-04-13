@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import parse from "html-react-parser";
+import AudioPlayer from "../components/AudioPlayer";
 
 const DetailSurat = () => {
   const { id } = useParams(); // Ambil parameter dari URL
   const [surat, setSurat] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentAudio, setCurrentAudio] = useState(null);
 
-  const getDataFromAPI = (idSurat) => {
+  const getDetailSurat = (idSurat) => {
     fetch(`https://equran.id/api/v2/surat/${idSurat}`)
       .then((res) => res.json())
       .then((data) => {
@@ -21,7 +23,7 @@ const DetailSurat = () => {
   };
 
   useEffect(() => {
-    getDataFromAPI(id);
+    getDetailSurat(id);
   }, [id]); // Jalankan useEffect setiap `id` berubah
 
   if (loading) return <p>Loading...</p>;
@@ -39,12 +41,25 @@ const DetailSurat = () => {
         <div>
           <ul className="list-group">
             {surat.ayat.map((ayat) => (
-              <li
-                className="list-group-item d-flex justify-content-between align-items-center arabic-text"
-                key={ayat.nomorAyat}
-              >
-                {ayat.teksArab}
-                <span className="badge text-bg-primary rounded-pill">{ayat.nomorAyat}</span>
+              <li key={ayat.nomorAyat}>
+                <div className="list-group-item d-flex justify-content-between">
+                  <span className=" align-items-center arabic-text">
+                    {ayat.teksArab}
+                  </span>
+                  <div className=" d-flex align-items-center">
+                    <span className="badge text-bg-primary rounded-sm d-flex align-items-center p-2 me-1">
+                      {ayat.nomorAyat}
+                    </span>
+                    <span>
+                      <AudioPlayer
+                        key={ayat.nomorAyat}
+                        url={ayat.audio["05"]}
+                        currentAudio={currentAudio}
+                        setCurrentAudio={setCurrentAudio}
+                      ></AudioPlayer>
+                    </span>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
